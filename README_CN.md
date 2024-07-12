@@ -639,7 +639,7 @@ Item {
 }
 ```
 
-And here is the proper way of doing it:
+下面是合适的方式:
 
 ```qml
 import QtQuick 2.3
