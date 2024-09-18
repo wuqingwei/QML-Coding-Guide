@@ -73,7 +73,7 @@
 
 在处理连接到Item的信号时，请确保始终将Component.onCompleted 放在最后一行。
 
-```qml
+```js
 // Wrong
 Item {
     Component.onCompleted: {
@@ -93,12 +93,9 @@ Item {
 
 这是因为，从心理上讲，这样会使画面更美观，因为 Component.onCompleted 会在组件构建完成时触发。
 
-
-------
-
 如果一个项目中有多个信号处理器，那么行数最少的处理器可能会被放在最前面。行数最少的处理程序可以放在最前面。随着执行行数的增加，处理程序 也会向下移动。唯一的例外是 Component.onCompleted 信号。总是放在最下面。
 
-```qml
+```js
 // Wrong
 Item {
     onOtherEvent: {
@@ -132,7 +129,7 @@ Item {
 
 第一个属性赋值必须始终是组件的 id。如果 要声明组件的自定义属性，声明总是在第一个属性赋值之上。
 
-```qml
+```js
 // Wrong
 Item {
     someProperty: false
@@ -163,7 +160,7 @@ Item {
 
 如果在信号处理程序中也有属性赋值，请确保 始终将属性赋值放在信号处理程序之上。
 
-```qml
+```js
 // Wrong
 Item {
     onOtherEvent: {
@@ -195,7 +192,7 @@ Item {
 
 公共函数的实现总是放在文件的最底部。尽管我们 优先将其他类型的公共声明放在文件顶部，但我还是鼓励您将公共函数放在底部。因为如果一个函数的行数变多，会大大降低 QML 文档的可读性、 会大大降低 QML 文档的可读性。理想情况下，您不应该有任何 函数，而尽量依赖组件的声明属性。尽可能依赖组件的声明属性。
 
-```qml
+```js
 // Wrong
 Item {
 
@@ -225,7 +222,7 @@ Item {
 
 由于动画很难在脑海中想象出来，因此尽可能简单的动画会让您受益匪浅。让动画尽可能简单。
 
-```qml
+```js
 // Bad
 NumberAnimation { target: root; property: "opacity"; duration: root.animationDuration; from: 0; to: 1 }
 
@@ -266,7 +263,7 @@ Qt 将在 QML 3 中淘汰非限定名称查找，因此最好现在就开始给�
 在分配分组属性时，如果只更改一个属性，则应使用点符号。否则，请务必使用分
 组符号。
 
-```qml
+```js
 Image {
     anchors.left: parent.left // Dot notation
     sourceSize { // Group notation
@@ -278,7 +275,7 @@ Image {
 
 当您在同一文件的不同地方为 Loader 的 sourceComponent 分配组件时，请考虑使用相同的实现。例如，在 有两个相同组件的实例。如果这两个 这些 SomeSpecialComponent 都是相同的，那么最好的办法就是 将 SomeSpecialComponent 封装在一个 Component 中。
 
-```qml
+```js
 // BEGIN bad.
 Loader {
     id: loaderOne
@@ -320,7 +317,7 @@ Component {
 
 在不使用 Loader 的类似情况下，您可以使用内联components。
 
-```qml
+```js
 component SomeSpecialComponent: Rectangle {
 
 }
@@ -349,7 +346,7 @@ Qt.include()` 已被[弃用](https://doc.qt.io/qt-6/qml-qtqml-qt-obsolete.html#i
 
 ### Full Example
 
-```qml
+```js
 // First Qt imports
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -505,7 +502,7 @@ Item {
 
 还要注意的是，使用 Connections 对象会带来轻微的性能/内存损耗，因为它需要进行另一次分配。如果您担心这个问题，可以使用 QtObject.connect方法，但要[注意]()这种方法的 此解决方案的隐患。 
 
-```qml
+```js
 // Bad
 Item {
     id: root
@@ -544,7 +541,7 @@ Item {
 
 使用上面的同一个示例，我们可以使用绑定对象将其重写如下。
 
-```qml
+```js
 Rectangle {
     id: root
 
@@ -590,7 +587,7 @@ QML 支持优化绑定表达式。优化后的绑定不需要 JavaScript 环境�
 
 有些情况下，您可能不需要立即绑定，而是在满足某个 条件满足时才需要绑定。通过延迟地创建绑定，可以避免不必要的执行。要在运行时创建绑定，可以使用 `Qt.binding()`.~
 
-```qml
+```js
 Item {
     property int edgePosition: 0
 
@@ -614,7 +611,7 @@ Item {
 
 下面是一个直接来自 Qt 文档的糟糕示例：
 
-```qml
+```js
 import QtQuick 2.3
 
 Item {
@@ -639,9 +636,9 @@ Item {
 }
 ```
 
-And here is the proper way of doing it:
+下面是合适的做法
 
-```qml
+```js
 import QtQuick 2.3
 
 Item {
@@ -678,9 +675,7 @@ QML 可用 C++ 扩展，方法是使用 Q_OBJECT 宏公开 QObject 类，或使�
 
 ## CI-1: Avoid Context Properties
 
-避免使用上下文属性
-
-Context properties are registered using
+上下文属性使用如下方式注册
 
 ```cpp
 rootContext()->setContextProperty("someProperty", QVariant());
@@ -695,7 +690,11 @@ you should strive to reduce the use of contextual variables (A variable that doe
 immediate scope, but the one above it.) and global state. Each QML document should be able to run
 with QML scene provided that the required properties are set.
 
-See [QTBUG-73064](https://bugreports.qt.io/browse/QTBUG-73064).
+上下文属性总是包含一个 `QVariant`，这意味着每次访问该属性时都要重新评估，因为在每次访问之间，该属性可能会发生变化，因为 `setContextProperty()` 可以在任何时刻使用。
+
+上下文属性的访问成本很高，而且难以推理。当你编写 QML 代码时，应努力减少使用上下文变量（不存在于直接作用域中的变量，而存在于其上的变量）和全局状态。只要设置了所需的属性，每个 QML 文档都应能与 QML 场景一起运行。
+
+见 [QTBUG-73064](https://bugreports.qt.io/browse/QTBUG-73064).
 
 ## CI-2: Use Singleton for Common API Access
 
@@ -705,6 +704,8 @@ There are bound to be cases where you have to provide a single instance for a
 functionality or common data access. In this situation, resort to using a singleton
 as it will have a better performance and be easier to read. Singletons are also
 a good option to expose enums to QML.
+
+在某些情况下，你必须为某个功能或常用数据访问提供一个单一实例。在这种情况下，使用单例会有更好的性能，也更容易读取。单例也是向 QML 公开枚举的好选择。
 
 ```cpp
 class MySingletonClass : public QObject
@@ -735,7 +736,12 @@ selected color on the palette. We only have one instance of the palette, and the
 accessed throughout our C++ code. So we decided that it makes sense to expose it as a singleton to
 QML side.
 
-```qml
+应尽量避免使用单例来访问共享数据。可重用组件尤其 是访问单例的坏地方。理想情况下，所有 QML 文档都应依靠自定义 属性来改变其内容。
+
+让我们设想一个场景，我们正在创建一个油漆应用程序，我们可以改变调色板上当前选择的颜色。选择的颜色。我们只有一个调色板实例，在整个 C++ 代码中都可以访问其中的数据。
+我们的整个 C++ 代码都要访问其中的数据。因此，我们决定将它作为一个单例暴露给 QML 端。
+
+```js
 // ColorViewer.qml
 Row {
     id: root
@@ -750,10 +756,9 @@ Row {
 }
 ```
 
-With this code, we bind our component to `Palette` singleton. Who ever wants to use our `ColorViewer`
-they won't be able to change it so they can show some other selected color.
+通过这段代码，我们将组件绑定到了 `Palette` 单例。如果有人想使用我们的 `ColorViewer` ，他们就无法更改它，从而无法显示其他选定的颜色。
 
-```qml
+```js
 // ColorViewer_2.qml
 Row {
     id: root
@@ -773,10 +778,9 @@ Row {
 }
 ```
 
-This would allow the users of this component to set the color and the name from outside, but we
-still have a dependency on the singleton.
+这将允许该组件的用户从外部设置颜色和名称，但我们仍然依赖于单例。
 
-```qml
+```js
 // ColorViewer_3.qml
 Row {
     id: root
@@ -794,25 +798,21 @@ Row {
 }
 ```
 
-This version allows you to de-couple from the singleton, enable it to be resuable in any context
-that wants to show a selected color, and you could easily run this through `qmlscene` and inspect
-its behavior.
+该版本允许您从单例解耦，使其可在任何想要显示所选颜色的上下文中重新使用，而且您可以轻松地通过 `qmlscene` 运行该版本并检查其行为。
 
 ## CI-3: Prefer Instantiated Types Over Singletons For Data
 
-Instantiated types are exposed to QML using:
+首选实例化类型而非单例数据
+实例化类型通过以下方式暴露给QML：
 
 ```cpp
 // In main.cpp
 qmlRegisterType<ColorModel>("MyNameSpace", 1, 0, "ColorModel");
 ```
 
-Instantiated types have the benefit of having everything available to you to understand and digest
-in the same document. They are easier to change at run-time without creating side effects, and easy
-to reason with because when looking at a document, you don't need to worry about any global state
-but the state of the type that you are dealing with at hand.
+实例化类型的好处是，您可以在同一文档中理解和消化所有内容。它们更容易在运行时更改而不会产生副作用，也更容易推理，因为在查看文档时，您不需要担心任何全局状态。也很容易推理，因为在查看文档时，你不需要担心任何全局状态 而只需关注当前处理的类型的状态。
 
-```qml
+```js
 // ColorsWindow.qml
 Window {
     id: root
@@ -832,21 +832,13 @@ Window {
 }
 ```
 
-The code above is a perfectly valid QML code. We'll get our model from the singleton, and display it
-with the reusable component we created in CI-2. However, there's still a problem here. `ColorsWindow`
-is now bound to the model from `Palette` singleton. And If I wanted to have the user select two
-different sets of colors, I would need to create another file with the same contents and use that.
-Now we have 2 components doing basically the same thing. And those two components need to be
-maintained.
+上面的代码是完全有效的 QML 代码。我们将从单例中获取模型，并用我们在 CI-2 中创建的可重用组件来显示它。然而，这里仍有一个问题。“ColorsWindow “现在绑定到了 ”Palette "单例中的模型。如果我想让用户选择两组不同的颜色，我就需要创建另一个内容相同的文件并使用它。现在我们有两个组件在做基本相同的事情，而这两个组件需要维护。
 
-This also makes it hard to prototype. If I wanted to see two different versions of this window with
-different colors at the same time, I can't do it because I'm using a singleton. Or, If I wanted to
-pop up a new window that shows the users the variants of a color set, I can't do it because the data
-is bound to the singleton.
+这也使得它很难进行原型设计。如果我想同时看到这个窗口的两个不同颜色版本，我做不到，因为我使用的是单例。或者，如果我想要弹出一个新窗口，向用户显示颜色集的变体，我也做不到，因为数据绑定在单例中。
 
-A better approach here is to either use an instantiated type or expect the model as a property.
+更好的办法是使用实例化类型或将模型作为属性。
 
-```qml
+```js
 // ColorsWindow.qml
 Window {
     id: root
@@ -870,25 +862,18 @@ Window {
 }
 ```
 
-Now, I can have the same window up at the same time with different color sets because they are not
-bound to a singleton. During prototyping, I can provide a dummy data easily by adding
-`PaletteColorElement` types to the model, or by requesting test dataset with something like:
+现在，我可以让同一个窗口在同一时间显示不同的颜色集，因为它们没有绑定到一个单例。在原型开发过程中，我可以通过在模型中添加
+’PaletteColorElement‘ 类型，或者通过请求测试数据集来提供虚拟数据：
 
-```qml
+```js
 PaletteColorsModel {
     testData: "prototype_1"
 }
 ```
 
-This test data could be auto-generated, or it could be provided by a JSON file. The beauty is that
-I'm no longer bound to a singleton, that I have the freedom to instantiate as many of these windows
-as I want.
+测试数据可以自动生成，也可以由 JSON 文件提供。这样做的好处是，我不再受单例的约束，可以自由地实例化任意数量的窗口。
 
-There may be cases where you actually truly want the data to be the same every where. In these
-cases, you should still provide an instantiated type instead of a singleton. You can still access
-the same resource in the C++ implementation of your model and provide that to QML. And you would
-still retain the freedom of making your data easily pluggable in different context and it would
-increase the re-usability of your code.
+在某些情况下，您可能真的希望数据在任何地方都是一样的。在这种情况下，你仍然应该提供一个实例化类型，而不是一个单例。您仍然可以在模型的 C++ 实现中访问相同的资源，并将其提供给 QML。您仍然可以在不同的上下文中自由地使用您的数据，增加代码的可重用性。
 
 ```cpp
 class PaletteColorsModel
@@ -902,36 +887,24 @@ class PaletteColorsModel
 
 ## CI-4: Watch Out for Object Ownership Rules
 
-When you are exposing data to QML from C++, you are likely to pass around custom
-data types as well. It is important to realize the implications of ownership when
-you are passing data to QML. Otherwise you might end up scratching your head trying
-to figure out why your app crashes.
+当您从 C++ 向 QML 公开数据时，很可能也会传递自定义的数据类型。否则，您最终可能会抓耳挠腮，想不出应用程序崩溃的原因。
 
-If you are exposing custom data type, prefer to set the parent of that data to the
-C++ class that transmits it to QML. This way, when the C++ class gets destroyed
-the custom data type also gets destroyed and you won't have to worry about releasing
-memory manually.
+如果您要公开自定义数据类型，最好将数据的父类设置为向 QML 传输数据的 C++ 类。这样，当 C++ 类被销毁时，自定义数据类型也会被销毁，您就不必担心手动释放内存了。
 
-There might also be cases where you expose data from a singleton class without a
-parent and the data gets destroyed because QML object that receives it will take
-ownership and destroy it. And you will end up accessing data that doesn't exist.
-Ownership is **not** transferred as the result of a property access. For data
-ownership rules see [here](https://doc.qt.io/qt-5/qtqml-cppintegration-data.html#data-ownership).
+也可能出现这样的情况：你从一个没有父类的单例类暴露数据，而数据会被销毁，因为接收它的 QML 对象会取得所有权并销毁它。最终，你将访问不存在的数据。所有权不会因为属性访问而转移。有关数据
+所有权规则，请参阅[这里](https://doc.qt.io/qt-5/qtqml-cppintegration-data.html#data-ownership).
 
-To learn more about the real life implications of this read [this blog post](https://www.embeddeduse.com/2018/04/02/qml-engine-deletes-c-objects-still-in-use/).
+了解更多，阅读这篇[文章](https://www.embeddeduse.com/2018/04/02/qml-engine-deletes-c-objects-still-in-use/).
 
 # Performance and Memory
 
-Most applications are not likely to have memory limitations. But in case you are
-working on a memory limited hardware or you just really care about memory allocations,
-follow these steps to reduce your memory usage.
+大多数应用程序都不会有内存限制。但如果你在内存有限的硬件上工作，或者你真的很在意内存分配、请按照以下步骤减少内存使用量。
 
 ## PM-1: Reduce the Number of Implicit Types
 
-If a type defines custom properties, that type becomes an implicit type to the JS
-engine and additional type information has to be stored.
+如果一个类型定义了自定义属性，该类型就会成为 JS 引擎的隐式类型，必须存储额外的类型信息。
 
-```qml
+```js
 Rectangle { } // Explicit type because it doesn't contain any custom properties
 
 Rectangle {
@@ -940,18 +913,12 @@ Rectangle {
 }
 ```
 
-You should follow the advice from the [official documentation](http://doc.qt.io/qt-5/qtquick-performance.html#avoid-defining-multiple-identical-implicit-types)
-and split the type into its own component If it's used in more than one place.
-But sometimes, that might not make sense for your case. If you are using a lot of
-custom properties in your QML file, consider wrapping the custom properties of
-types in a `QtObject`. Obviously, JS engine will still need to allocate memory
-for those types, but you already gain the memory efficiency by avoiding the
-implicit types. Additionally, wrapping the properties in a `QtObject` uses less
-memory than scattering those properties to different types.
+应该参考官方文档的建议 [官方文档](http://doc.qt.io/qt-5/qtquick-performance.html#avoid-defining-multiple-identical-implicit-types)，如果该类型在多个地方使用，则将其拆分成独立的组件。
+但有时，这对您的情况可能没有意义。如果您在 QML 文件中使用了大量自定义属性，可以考虑用 `QtObject`封装类型的自定义属性。显然，JS 引擎仍需要为这些类型分配内存，但由于避免了隐式类型，您已经获得了内存效率。此外，将属性封装在 `QtObject` 中比将这些属性分散到不同的类型中占用更少的内存。
 
-Consider the following example:
+示例：
 
-```qml
+```js
 Window {
     Rectangle { id: r1 } // Explicit type. Memory 64b, 1 allocation.
 
@@ -965,15 +932,11 @@ Window {
 }
 ```
 
-In this example, the introduction of a custom property to added additional 64b
-of memory and 2 more allocations. Along with `privates`, memory usage adds up to
-256b. The total memory usage is 320b.
+在本例中，自定义属性的引入增加了 64b 内存和 2 次分配。加上 “privates”，内存使用量增加到 256b。总内存使用量为 320b。
 
-You can use the QML profiler to see the allocations and memory usage for each
-type. If we change that example to the following, you'll see that both memory
-usage and number of allocations are reduced.
+你可以使用 QML profiler 查看每种类型的分配和内存使用情况。如果我们把这个例子改成下面这个，你会发现内存使用量和分配次数都减少了。
 
-```qml
+```js
 Window {
     Rectangle { id: r1 } // Explicit type. Memory 64b, 1 allocation.
 
@@ -988,24 +951,19 @@ Window {
 }
 ```
 
-In the second example, total memory usage is 288b. This is really a minute
-difference in this context, but as the number of components increase in a
-project with memory constrained hardware, it can start to make a difference.
+在第二个示例中，总内存使用量为 288b。在这种情况下，这确实只是微小的差别，但当项目中的组件数量增加，硬件内存受限时，差别就会开始显现。
 
 # Signal Handling
 
-Signals are a very powerful mechanism in Qt/QML. And the fact that you can
-connect to signals from C++ makes it even better. But in some situations, If you
-don't handle them correctly you might end up scratching your head.
+信号是 Qt/QML 中非常强大的机制。事实上，您可以从 C++ 连接到信号，这让它变得更加出色。但在某些情况下，如果处理不当，您可能会抓耳挠腮。
 
 ## SH-1: Try to Avoid Using connect Function in Models
 
-You can have signals in the QML side, and the C++ side. Here's an example for
-both cases.
+您可以在 QML 端和 C++ 端设置信号。下面是一个两种情况的例子。
 
-QML Example.
+QML 端.
 
-```qml
+```js
 // MyButton.qml
 import QtQuick.Controls 2.3
 
@@ -1016,7 +974,7 @@ Button {
 }
 ```
 
-C++ Example:
+C++ 端:
 
 ```cpp
 class MyButton
@@ -1028,18 +986,17 @@ signals:
 };
 ```
 
-The way you connect to signals is using the syntax
+连接信号使用的语法
 
-```qml
+```js
 item.somethingChanged.connect(function() {})
 ```
 
-When this method is used, you create a function that is connected to the
-`somethingChanged` signal.
+使用此方法时，您将创建一个与`somethingChanged` 信号相连的函数。
 
-Consider the following example:
+示例:
 
-```qml
+```js
 // MyItem.qml
 Item {
     id: root
@@ -1055,29 +1012,31 @@ Item {
 }
 ```
 
-This is a perfectly legal code. And it would most likely work in most scenarios.
-But, if the life time of the `customObject` is not managed in `MyItem`, meaning
-if the `customObject` can keep on living when the `MyItem` instance is destroyed,
-you run into problems.
+这是完全合法的代码。而且在大多数情况下都能正常工作。但是，如果 `MyItem` 中没有管理 `customObject` 的生命周期，也就是说
+如果当 `MyItem` 实例被销毁时，`customObject` 还能继续存在、
+就会出现问题。
 
-The connection is created in the context of `MyItem`, and the function naturally
-has access to its enclosing context. So, as long as we have the instance of
-`MyItem`, whenever `somethingChanged` is emitted we'd get a log saying
-`my_item_is_alive`.
+连接是在 `MyItem`的上下文中创建的，函数自然也就可以访问其外层上下文。因此，只要我们有
+”MyItem“的实例，每当 ”somethingChanged "发出时，我们就会收到一条日志，上面写着
+my_item_is_alive`。
 
-Here's a quote directly from [Qt documentation](https://doc.qt.io/qt-5/qml-qtquick-listview.html):
+下面内容来自Qt文档 [Qt documentation](https://doc.qt.io/qt-5/qml-qtquick-listview.html):
 
 > Delegates are instantiated as needed and may be destroyed at any time. They
 > are parented to `ListView`'s `contentItem`, not to the view itself. State
 > should never be stored in a delegate.
 
+> Delegates代理根据需要实例化，可随时销毁。它们的父节点是 `ListView` 的 `contentItem`，而不是view视图本身。绝不应将state状态存储在delegate委托中。
+
 So you might be making use of an external object to store state. But what If
 `MyItem` is used in a `ListView`, and it went out of view and it was destroyed
 by `ListView`?
 
-Let's examine what happens with a more concrete example.
+因此，您可能会使用外部对象来存储状态。但如果`MyItem`在`ListView`中使用，而它离开了视图并被`ListView`销毁了怎么办？
 
-```qml
+让我们用一个更具体的例子来看看会发生什么。
+
+```js
 ApplicationWindow {
     id: root
 
@@ -1172,7 +1131,17 @@ The simplest and most elegant solution (That I have found) is to simply use a
 `Connections` object and handle the signal there. So, If we change the code to
 this:
 
-```qml
+在此示例中，一旦其中一个按钮被销毁，我们仍然拥有该对象的实例。然后，对象实例仍然包含我们在
+`Component.onCompleted` 中建立的连接。因此，当我们点击 `btn` 时，就会出现错误：
+`TypeError: Type error`。但当我们展开窗口，再次创建按钮时。但之前的连接仍然存在，并且仍然会导致
+错误。但现在又创建了一个新的连接，我们就会在同一个对象上出现两个连接。
+
+这种情况显然不理想，应该避免。但该怎么做呢？
+
+最简单、最优雅的解决方案（我发现）是简单地使用一个连接 "对象并在其中处理信号。因此，如果我们将代码改为
+这样：
+
+```js
 delegate: Button {
     id: self
 
@@ -1192,11 +1161,9 @@ delegate: Button {
 }
 ```
 
-Now, whenever the delegate is destroyed so is the connection. This method can
-be used even for multiple objects. You can simply put the `Connections` in a
-`Component` and use `createObject` to instantiate it for a specific object.
+现在，只要委托被销毁，连接也会被销毁。这种方法甚至可以用于多个对象。您只需将 `Connections` 放在一个 `Component` 中，然后使用 `createObject` 为特定对象实例化即可。
 
-```qml
+```js
 Item {
     id: root
     onObjectAdded: {
@@ -1218,27 +1185,22 @@ Item {
 
 ## SH-2: When to use Functions and Signals
 
-When coming from imperative programming, it might be very tempting to use signals
-very similar to functions. Resist this temptation. Especially when communicating
-between the C++ layer of your application, misusing signals can be very confusing
-down the line.
+在命令式编程中，使用与函数非常相似的信号可能很有诱惑力。请抵制这种诱惑。尤其是在应用程序的 C++ 层之间进行通信时，错误使用信号可能会造成严重的混淆。
 
-Let's first clearly define what a signal should be doing. Here's how
-[Qt](https://doc.qt.io/qt-5/signalsandslots.html#signals) defines it.
+首先，让我们明确定义信号的作用。下面是[Qt](https://doc.qt.io/qt-5/signalsandslots.html#signals) 是如何定义的。
 
 > Signals are emitted by an object when its internal state has changed in some
 > way that might be interesting to the object's client or owner. 
 
-This means that whatever happens in the signal handler is a reaction to an
-internal state change of an object. The signal handler should not be changing
-something else in the same object.
+> 当对象的内部状态发生某种变化，而对象的客户端或所有者可能对此感兴趣时，对象就会发出信号。
 
-See the following example. We have a `ColorPicker` component that we want to use
-to show the user a message when the color is picked. As far as component design
-goes, the fact that the customer sees a message is not `ColorPicker`'s job.
-Its job is to present a dialog and change the color it represents.
 
-```qml
+
+这意味着信号处理器中发生的任何事情都是对对象内部状态变化的反应。信号处理程序不应改变同一对象中的其他内容。
+
+请看下面的示例。我们有一个 `ColorPicker` 组件，当颜色被选中时，我们想用它来向用户显示一条信息。就组件设计而言，客户看到一条消息并不是` ColorPicker` 的工作，它的工作是显示一个对话框并更改它所代表的颜色。
+
+```js
 // ColorPicker.qml
 Rectangle {
     id: root
@@ -1267,11 +1229,9 @@ Window {
 }
 ```
 
-The above example is pretty straightforward, the signal handler only reacts to
-a change and does something with that information after which the `ColorPicker`
-object is not affected.
+上面的示例非常简单，信号处理程序只对变化做出反应，并对信息进行处理，之后 `ColorPicker` 对象就不受影响了。
 
-```qml
+```js
 // ColorPicker.qml
 Rectangle {
     id: root
@@ -1300,17 +1260,20 @@ Window {
 }
 ```
 
-In this example, the signal handler not only reacts to an internal state but it
-also changes it. This is a very simple example, and it'll be easy to spot an
-error. However complex your application is, you will always benefit from
-making the distinction clear. Otherwise what you think to be a function at first
-glance might end up being a signal and it loses its semantics of an internal
-state change.
+
+
+在这个示例中，信号处理器不仅对内部状态做出反应，而且还改变了内部状态。这是一个非常简单的示例，很容易发现错误。无论您的应用程序有多复杂，明确区分总是有益的。否则，你乍一看以为是函数的东西最终可能会变成信号，从而失去内部状态变化的语义。
 
 Here's a general principle to follow:
 
 1. When communicating up, use signals.
+
 2. When communicating down, use functions.
+
+    这里有一个总的原则可以遵循：
+
+    1. 向上交流时，使用信号。  
+    2. 向下通信时，使用函数。
 
 ### Communicating with C++ Using Signals
 
@@ -1325,13 +1288,15 @@ make the decision whether to fire a signal or not.
 If you are using a C++ type instantiated in QML, the same rules apply. You should
 not be emitting signals from QML side.
 
+当您在 QML 端使用模型时，很可能会遇到 QML 端发生的事情需要触发 C++ 端动作的情况。
+
+在这种情况下，最好不要从 QML 端调用任何 C++ 信号。取而代之的是使用函数调用或更好的属性赋值。然后由 C++ 对象决定是否触发信号。
+
+如果你使用在 QML 中实例化的 C++ 类型，同样的规则也适用。你不应该从 QML 端发射信号。
+
 # JavaScript
 
-It is the prevalent advice that you should avoid using JavaScript as much as possible
-in your QML code and have the C++ side handle all the logic. This is a sound advice
-and should be followed, but there are cases where you can't avoid having JavaScript
-code for your UI. In those cases, follow these guidelines to ensure a good use of
-JavaScript in QML.
+流行的建议是，应尽可能避免在 QML 代码中使用 JavaScript，而让 C++ 处理所有逻辑。这是一个合理的建议，应予以遵循，但在某些情况下，您无法避免在用户界面中使用 JavaScript 代码。在这种情况下，请遵循以下指南，以确保在 QML 中很好地使用 JavaScript。
 
 ## JS-1: Use Arrow Functions
 
@@ -1342,7 +1307,9 @@ block within the arrow function, it has an implicit return statement.
 
 Let's compare the arrow function version with the old way.
 
-```qml
+ES6 引入了箭头函数。它的语法与 C++ lambdas 非常接近，而且有一个相当不错的特性，使其在使用 `connect()` 函数创建绑定时使用起来更加得心应手。如果箭头函数中没有代码块，它就会有一个隐式返回语句。让我们比较一下箭头函数版本和旧版本。
+
+```js
 Item {
     property int value: -1
 
@@ -1355,8 +1322,7 @@ Item {
 }
 ```
 
-The arrow function version is easier on the eyes and cleaner to write.
-For more information about arrow functions, head over to the [MDN Blog](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
+箭头函数版本更容易看懂，书写也更简洁。 有关箭头函数的更多信息，请访问 [MDN 博客](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
 
 ## JS-2: Use the Modern Way of Declaring Variables
 
@@ -1366,7 +1332,11 @@ You should leverage `let` and `const` in your codebase and avoid using `var`.
 `let` and `const` enables a scope based naming wheras `var` only knows about one
 scope.
 
-```qml
+在 ES6 中，有 3 种删除变量的方法：var、let 和 const。您应该在代码库中使用 let 和 const，避免使用 var。
+
+`let` 和 `const` 实现了基于作用域的命名，而 `var` 只知道一个作用域。
+
+```js
 Item {
     onClicked: {
         const value = 32;
@@ -1380,9 +1350,7 @@ Item {
 }
 ```
 
-Much like in C++, prefer using `const` If you don't want the variable to be assigned.
-But keep in mind that `const` variables in JavaScript are not immutable. It just
-means they can't be reassigned, but their contents can be changed.
+和 C++ 一样，如果你不希望变量被赋值，最好使用 const。 但请记住，JavaScript 中的 const 变量并不是不可变的。这只是意味着它们不能被重新赋值，但其内容可以更改。
 
 ```javascript
 const value = 32;
@@ -1392,20 +1360,20 @@ const obj = {value: 32};
 obj.value = 42; // Valid.
 ```
 
-See the MDN posts on [const](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const)
-and [let](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let)
+参考MDN文章 [const](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const)和 [let](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let)
 
 # States and Transitions
 
-States and transitions are a powerful way to create dynamic UIs. Here are some things to keep in
-mind when you are using them in your projects.
+状态和转换是创建动态用户界面的一种强大方法。以下是在项目中使用它们时需要注意的一些事项。
 
 ## ST-1: Don't Define Top Level States
 
 Defining states at the top-level of a reusable component can cause breakages if the user of your
 components also define their own states for their specific use case. 
 
-```qml
+如果组件的用户也为他们的特定用例定义自己的状态，在可重用组件的顶层定义状态就会造成中断。
+
+```js
 // MyButton.qml
 Rectangle {
     id: root
@@ -1466,7 +1434,7 @@ state in an item, our hover state will be messed up.
 In order to avoid this problem, create your top-level state in a separate item or use a
 `StateGroup`.
 
-```qml
+```js
 Rectangle {
     id: root
 
@@ -1524,26 +1492,24 @@ Visual items are at the core of QML, anything that you see in the window (or don
 transparency) are visual items. Having a good understanding of the visual items, their relationship
 to each other, sizing, and positioning will help you create a more robust UI for your application.
 
+可视化项是 QML 的核心，您在窗口中看到的任何东西（或由于透明而看不到的东西）都是可视化项。充分了解可视化项、它们之间的关系、大小和位置，将有助于为您的应用程序创建更强大的用户界面。
+
 ## VI-1: Distinguish Between Different Types of Sizes
 
-When thinking about geometry, we think in terms of `x`, `y`, `width` and `height`. This defines
-where our items shows up in the scene and how big it is. `x` and `y` are pretty straightforward but
-we can't really say the same about the size information in QML.
+在考虑几何图形时，我们会考虑 x、y、宽度和高度。这定义了物品在场景中的位置和大小。x 和 y 非常简单，但 QML 中的尺寸信息却不是这样。
 
-There's 2 different types of size information that you get from various visual items:
+您可以从各种视觉项目中获得两种不同的尺寸信息：
 
 1. Explicit size: `width`, `height`
 2. Implicit size: `implicitWidth`, `implicitHeight`
 
-A good understanding of these different types is important to building a reusable library of
-components.
+充分了解这些不同类型对于建立一个可重复使用的组件库非常重要。
 
 ### Explicit Size
 
-It's in the name. This is the size that you explicitly assign to an `Item`. By default, `Item`s do
-not have an explicit size and its size will always be `Qt.size(0, 0)`.
+顾名思义。这是显式分配给项的大小。默认情况下，Items 没有显式大小，其大小始终为 Qt.size(0,0)。
 
-```qml
+```js
 // No explicit size is set. You won't see this in your window.
 Rectangle {
     color: "red"
@@ -1559,15 +1525,12 @@ Rectangle {
 
 ### Implicit Size
 
-Implicit size refers to the size that an `Item` occupies by default to display itself properly.
-This size is not set automatically for any `Item`. You, as a component designer, need to make a
-decision about this size and set it to your component.
+隐含尺寸指的是一个 `Item` 为正确显示自己而默认占用的尺寸。 这个尺寸不会自动为任何 `Item` 设置。作为组件设计者，您需要决定这个尺寸，并将其设置到您的组件中。
 
-The other thing to note is that [Qt internally
-knows](https://github.com/qt/qtdeclarative/blob/dev/src/quick/items/qquickitem.h#L418) if it has an
-explicit size or not. So, when an explicit size is not set, it will use the implicit size.
+还需注意的是，Qt 内部 [Qt internally
+knows](https://github.com/qt/qtdeclarative/blob/dev/src/quick/items/qquickitem.h#L418)知道是否有显式大小。因此，如果没有设置显式大小，它将使用隐式大小。
 
-```qml
+```js
 // Even though there's no explicit size, it will have a size of Qt.size(100, 100)
 Rectangle {
     implicitWidth: 100
@@ -1578,15 +1541,11 @@ Rectangle {
 
 -----
 
-Whenever you are building a reusable component, never set an explicit size within the component but
-instead choose to provide a sensible implicit size. This way, the user of your components can freely
-manipulate its size and when they need to return to a default size, they can always default to the
-implicit size so they don't have to store a different default size for the component. This feature
-is also very useful if you want to implement a resize-to-fit feature.
+无论何时构建可重用组件，都不要在组件中设置显式尺寸，而是选择提供合理的隐式尺寸。这样，组件的用户就可以自由操作组件的大小，当他们需要返回默认大小时，就可以始终默认使用隐式大小，这样他们就不必为组件存储不同的默认大小。如果您想实现调整大小的功能，这一功能也非常有用。
 
-When a user is using your component, they may not bother to set a size for it.
+当用户使用您的组件时，他们可能懒得为其设置尺寸
 
-```qml
+```js
 CheckBox {
     text: "Check Me Out"
 }
@@ -1596,6 +1555,8 @@ In the example above, the check box would only be visible If there was a sensibl
 it. This implicit size needs to take into account its visual components (the box, the label etc.) so
 that we can see the component properly. If this is not provided, it's difficult for the user of your
 component to set a proper size for it.
+
+在上面的示例中，复选框只有在有合理的隐含尺寸的情况下才会可见。这个隐含尺寸需要考虑到它的视觉组件（方框、标签等），这样我们才能正确地看到组件。如果不提供隐含尺寸，组件的用户就很难为其设置合适的尺寸。
 
 ## VI-2: Be Careful with a Transparent `Rectangle`
 
@@ -1613,7 +1574,15 @@ it's no longer needed. Alternatively, you can put the `Rectangles` in an asynchr
 Here's a sample QML code to demonstrate the difference between using an opaque rectangle and a
 transparent one when it comes to the creation time of these components.
 
-```qml
+除非您需要绘制边框，否则不应将 `Rectangle` 与透明色一起使用。 如果您将 Rectangle 用作需要批量创建的委托的一部分，情况尤其如此。
+
+绘制透明/半透明内容需要花费更多时间，因为半透明内容需要混合。 不透明内容可以通过渲染器得到更好的优化。
+
+为了避免付出代价，请寻找可以推迟使用透明矩形的方法。也许你可以在悬停时或某些事件中显示它，然后在不再需要它时将其设置为不可见。或者，您也可以将矩形放在异步加载器中。
+
+下面是一段 QML 示例代码，用于演示在创建这些组件时，使用不透明矩形和透明矩形的区别。
+
+```js
 Window {
     visible: true
 
@@ -1727,4 +1696,10 @@ Please note that this will not matter that much when you are drawing a few recta
 there. The problem will present itself when you are using translucency in the context of a delegate
 because there can potentially be creating thousands of these rectangles.
 
-See also: [Translucent vs Opaque](https://doc.qt.io/qt-5/qtquick-performance.html#translucent-vs-opaque)
+当你第一次运行这个示例并创建实心矩形时，你会发现创建速度非常快。如果关闭并再次运行，但这次创建的是透明或半透明的矩形，你会发现所报告的时间实际上与创建实心矩形的时间相差不大。
+
+真正的问题出现在创建新的透明项目时，而此时场景中已经有了矩形。试着先创建实心的，然后再创建透明的，你会发现时间差非常明显。
+
+请注意，当您在这里或那里绘制几个矩形时，这并不重要。当您在委托的上下文中使用半透明效果时，问题就会出现，因为有可能会创建成千上万个这样的矩形。
+
+参见: [Translucent vs Opaque](https://doc.qt.io/qt-5/qtquick-performance.html#translucent-vs-opaque)
