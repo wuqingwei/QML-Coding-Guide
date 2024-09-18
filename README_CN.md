@@ -673,9 +673,11 @@ Item {
 QML 可用 C++ 扩展，方法是使用 Q_OBJECT 宏公开 QObject 类，或使用 Q_GADGET 宏公开自定义数据类型。使用 C++ 为 QML 应用程序添加功能总是首选。
 但重要的是要知道哪种是公开 C++ 类的最佳方式，这取决于您的使用情况。
 
-## CI-1: Avoid Context Properties
+## CI-1: Avoid Context Properties 避免使用上下文属性
 
-上下文属性使用如下方式注册
+避免使用上下文属性
+
+Context properties are registered using
 
 ```cpp
 rootContext()->setContextProperty("someProperty", QVariant());
@@ -690,7 +692,7 @@ you should strive to reduce the use of contextual variables (A variable that doe
 immediate scope, but the one above it.) and global state. Each QML document should be able to run
 with QML scene provided that the required properties are set.
 
-上下文属性总是包含一个 `QVariant`，这意味着每次访问该属性时都要重新评估，因为在每次访问之间，该属性可能会发生变化，因为 `setContextProperty()` 可以在任何时刻使用。
+See [QTBUG-73064](https://bugreports.qt.io/browse/QTBUG-73064).
 
 上下文属性的访问成本很高，而且难以推理。当你编写 QML 代码时，应努力减少使用上下文变量（不存在于直接作用域中的变量，而存在于其上的变量）和全局状态。只要设置了所需的属性，每个 QML 文档都应能与 QML 场景一起运行。
 
@@ -704,8 +706,6 @@ There are bound to be cases where you have to provide a single instance for a
 functionality or common data access. In this situation, resort to using a singleton
 as it will have a better performance and be easier to read. Singletons are also
 a good option to expose enums to QML.
-
-在某些情况下，你必须为某个功能或常用数据访问提供一个单一实例。在这种情况下，使用单例会有更好的性能，也更容易读取。单例也是向 QML 公开枚举的好选择。
 
 ```cpp
 class MySingletonClass : public QObject
@@ -727,14 +727,9 @@ qmlRegisterSingletonType<SingletonTest>("MyNameSpace", 1, 0, "MySingletonClass",
                                         MySingletonClass::singletonProvider);
 ```
 
-You should strive to not use singletons for shared data access. Reusable components are especially
-a bad place to access singletons. Ideally, all QML documents should rely on the customization
-through properties to change its content.
+你应该尽量不使用单例来访问共享数据。可重用组件尤其不是访问单例的好地方。理想情况下，所有QML文档都应该依赖于通过属性进行的定制来更改其内容。
 
-Let's imagine a scenario where we are creating a paint app where we can change the currently
-selected color on the palette. We only have one instance of the palette, and the data from this is
-accessed throughout our C++ code. So we decided that it makes sense to expose it as a singleton to
-QML side.
+让我们想象一个场景，我们正在创建一个油漆应用程序，我们可以改变调色板上当前选定的颜色。我们只有一个调色板实例，并且在整个C++代码中都可以访问该实例中的数据。因此，我们决定将其作为单例暴露给QML方是有意义的。
 
 应尽量避免使用单例来访问共享数据。可重用组件尤其 是访问单例的坏地方。理想情况下，所有 QML 文档都应依靠自定义 属性来改变其内容。
 
@@ -802,15 +797,17 @@ Row {
 
 ## CI-3: Prefer Instantiated Types Over Singletons For Data
 
-首选实例化类型而非单例数据
-实例化类型通过以下方式暴露给QML：
+Instantiated types are exposed to QML using:
 
 ```cpp
 // In main.cpp
 qmlRegisterType<ColorModel>("MyNameSpace", 1, 0, "ColorModel");
 ```
 
-实例化类型的好处是，您可以在同一文档中理解和消化所有内容。它们更容易在运行时更改而不会产生副作用，也更容易推理，因为在查看文档时，您不需要担心任何全局状态。也很容易推理，因为在查看文档时，你不需要担心任何全局状态 而只需关注当前处理的类型的状态。
+Instantiated types have the benefit of having everything available to you to understand and digest
+in the same document. They are easier to change at run-time without creating side effects, and easy
+to reason with because when looking at a document, you don't need to worry about any global state
+but the state of the type that you are dealing with at hand.
 
 ```js
 // ColorsWindow.qml
@@ -885,7 +882,7 @@ class PaletteColorsModel
 };
 ```
 
-## CI-4: Watch Out for Object Ownership Rules
+## CI-4: Watch Out for Object Ownership Rules 注意对象所有权规则
 
 当您从 C++ 向 QML 公开数据时，很可能也会传递自定义的数据类型。否则，您最终可能会抓耳挠腮，想不出应用程序崩溃的原因。
 
